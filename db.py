@@ -14,7 +14,7 @@ class PgConn:
 
     def set_time(self):
         with self.conn:
-            self.cur.execute("ALTER DATABASE d352kabd9ideph SET DATESTYLE TO PostgreSql,European;")
+            self.cur.execute("ALTER DATABASE d9ocvq1c3g3kb5 SET DATESTYLE TO PostgreSql,European;")
             self.conn.commit()
             self.cur.execute("SET TIME ZONE 'Asia/Tashkent'")
             self.conn.commit()
