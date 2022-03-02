@@ -180,7 +180,7 @@ class PgConn:
                 self.cur.execute("INSERT INTO users(id_tg, username, date_reg) VALUES(%s,%s,%s);",
                                  (user_id, user_name, date_login))
                 self.conn.commit()
-                subjects = ["English", "KIS", "IIS", "WEB", "JAVA", "Info_sys", "Psychology", "Graj_zash"]
+                subjects = ["English", "KIS", "IIS", "WEB", "JAVA", "Info_sys", "Psychology", "Graj_zash", "Tech_auto"]
                 for subject in subjects:
                     self.cur.execute(f"INSERT INTO {subject}(id_user) VALUES((SELECT id FROM users WHERE id_tg = %s));",
                                      (user_id,))
@@ -227,6 +227,13 @@ class PgConn:
                              f"id_tg = %s);", (status, user_id))
             self.conn.commit()
 
+    def get_task_status(self, user_id, subject, task):
+        with self.conn:
+            self.cur.execute(f"SELECT {task} FROM {subject} WHERE id_user = (SELECT id FROM users WHERE id_tg = %s);",
+                             (user_id,))
+            task_status = self.cur.fetchone()
+            return task_status[0]
+
     def set_user_temp(self, user_id, temp):
         with self.conn:
             self.cur.execute("UPDATE users SET temp = %s WHERE id_tg = %s;", (temp, user_id,))
@@ -237,13 +244,6 @@ class PgConn:
             self.cur.execute("SELECT temp FROM users WHERE id_tg = %s;", (user_id,))
             temp = self.cur.fetchone()
             return temp[0]
-
-    def get_task_status(self, user_id, subject, task):
-        with self.conn:
-            self.cur.execute(f"SELECT {task} FROM {subject} WHERE id_user = (SELECT id FROM users WHERE id_tg = %s);",
-                             (user_id,))
-            task_status = self.cur.fetchone()
-            return task_status[0]
 
     def get_users_id_db(self):
         with self.conn:
