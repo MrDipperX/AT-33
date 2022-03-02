@@ -383,6 +383,7 @@ def mess(message):
             del_old_subject(message)
 
             tech_auto_task_btns = subject_task_view(message, "Tech_auto", items_btns_kir[:19], items_btns_lat[:19])
+            bot.send_message(message.from_user.id, str(items_btns_kir[:19])+str(items_btns_lat[:19]))
             bot.send_message(message.from_user.id, str(tech_auto_task_btns))
             inline_markup.add(*tech_auto_task_btns)
             bot.send_message(message.from_user.id, lang['Tech_auto_btn'], reply_markup=inline_markup)
