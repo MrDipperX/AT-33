@@ -184,9 +184,8 @@ def send_ads():
         users = db.get_all_info_user()
         text_and_url = db.send_add()
 
-        for i in range(len(users)):
-            print(users[i - 1][3])
-            bot.send_photo(users[i - 1][3], open(f"{text_and_url[1]}", 'rb'), text_and_url[0])
+        for user in users:
+            bot.send_photo(user[3], open(f"{text_and_url[1]}", 'rb'), text_and_url[0])
     except Exception as e:
         print(e)
 
@@ -493,13 +492,12 @@ def happy_birthday():
     try:
         db = PgConn(config.host, config.dbname, config.user, config.port, config.password)
         users = db.get_users_id_db()
-        for i in range(len(users)):
-            for user in users:
-                if user[1] is not None or user[2] is not None:
-                    if user[1].month == datetime.today().month and user[1].day == datetime.today().day:
-                        hb = f"Поздравим, {user[2]} {emoji.emojize(':graduation_cap:')}. Имениннику исполнилось " \
-                             f"{datetime.today().year-user[1].year}!"
-                        bot.send_message(users[i - 1][0], hb, parse_mode='html')
+        for user in users:
+            if user[1] is not None or user[2] is not None:
+                if user[1].month == datetime.today().month and user[1].day == datetime.today().day:
+                    hb = f"Поздравим, {user[2]} {emoji.emojize(':graduation_cap:')}. Имениннику исполнилось " \
+                         f"{datetime.today().year-user[1].year}!"
+                    bot.send_message(user[0], hb, parse_mode='html')
     except Exception as e:
         print(e)
 
@@ -513,7 +511,7 @@ def request_forecast():
                            params={'id': config.city_id, 'units': 'metric', 'lang': 'ru', 'APPID': config.appid})
         data = res.json()
         temp_list = []
-        for st in range(len(users)):
+        for user in users:
             for i in data['list']:
                 weather_day = datetime.fromisoformat(i['dt_txt'])
                 if datetime.today().day == weather_day.day:
@@ -527,7 +525,7 @@ def request_forecast():
                                        f"{'{0:+3.0f}'.format(max(temp_list))+' °C'}\n" \
                             f"<b>{emoji.emojize(':cityscape:')} Минимальная температура</b> : " \
                                        f"{'{0:+3.0f}'.format(min(temp_list))+' °C'}\n"
-            bot.send_message(users[st - 1][0], f"{emoji.emojize(':school:')} Сегодня погода в Ташкенте"
+            bot.send_message(user[0], f"{emoji.emojize(':school:')} Сегодня погода в Ташкенте"
                                                f"\n\n{weather_news}\n", parse_mode='html')
 
     except Exception as e:
@@ -539,41 +537,52 @@ def timetable():
         db = PgConn(config.host, config.dbname, config.user, config.port, config.password)
         users = db.get_users_id_db()
         today = 'Сегодня '
-        everyday_start = 'Сегодняшнее расписание:\n'
+        everyday_start = 'Сегодняшний экзамен:\n'
+        send_mess = ""
+        day = ""
 
-        for i in range(len(users)):
-            if datetime.today().isoweekday() == 1:
-                day = f'<i>{lang["Monday_btn"]}</i>\n'
-                send_mess = f'{everyday_start}<b>1.Граж. защита(прак) | 454\n2.ИИС(лб) | 583a\n3.КИС(лб) | 583a</b>'
+        for user in users:
+            if datetime.today().month == 6:
+                if datetime.today().day == 6:
+                    day = f'6 - июня\n'
+                    send_mess = f'{everyday_start} КИС "Нима киласила уйга бориб?" (устно) 9-00 587(kaf) Aliyev R.M.'
 
-            elif datetime.today().isoweekday() == 2:
-                day = f'<i>{lang["Tuesday_btn"]}</i>\n'
-                send_mess = f'{everyday_start}<b>1.ИИС(лек) | 588\n2.КИС(лек) | 589\n' \
-                            f'3.Java(лб) | 585</b>'
+                elif datetime.today().day == 7:
+                    day = f'7 - июня\n'
+                    send_mess = f'{everyday_start} ИС на ЖТ "ТОЙЧОК" (устно) 10-00 587 (kaf) Gulyamov J.N'
 
-            elif datetime.today().isoweekday() == 3:
-                day = f'<i>{lang["Wednesday_btn"]}</i>\n'
-                send_mess = f'{everyday_start}<b>1.ВЕБ(лб) | 580\n2.Java(лек) | 589' \
-                            f'\n3.Психология | 384</b>'
+                elif datetime.today().day == 8:
+                    day = f'8 - июня\n'
+                    send_mess = f'{everyday_start} ВЕБ "Мужик" (письменно) 9-00 587(kaf) Aliyev R.M.'
 
-            elif datetime.today().isoweekday() == 4:
-                day = f'<i>{lang["Thursday_btn"]}</i>\n'
-                send_mess = f'{everyday_start}<b>1.ВЕБ(лек) | 581\n2.Тех. авто.(лек) | 255 / ' \
-                            f'Граж. защита(прак) | 454\n3.Тех. авто.(лб) | 255</b>'
+                elif datetime.today().day == 9:
+                    day = f'9 - июня\n'
+                    send_mess = f'{everyday_start} Психолония "керемас фан ©Ислом" (письменно) 10-00 387a (kaf) ' \
+                                f"Cho'lponova X.T"
 
-            elif datetime.today().isoweekday() == 5:
-                day = f'<i>{lang["Friday_btn"]}</i>\n'
-                send_mess = f'{everyday_start}<b>1.Инф. сис.(лек) | 589\n2.Англ. язык | 398а\n3.Инф. сис.(лб) | 583</b>'
+                elif datetime.today().day == 10:
+                    day = f'10 - июня\n'
+                    send_mess = f'{everyday_start} JAVA "кетти дарсдан" (письменно) 9-00 587 (kaf) Toshmetov T.Sh.'
 
-            elif datetime.today().isoweekday() == 6:
-                day = f'<i>{lang["Saturday_btn"]}</i>\n'
-                send_mess = 'Отдыхаем!!!'
+                elif datetime.today().day == 13:
+                    day = f'13 - июня\n'
+                    send_mess = f'{everyday_start} Английский "30 та соз" (тест) 10-00 442 Samandarova G.I.'
 
-            else:
-                day = f'<i>{lang["Sunday_btn"]}</i>\n'
-                send_mess = 'Отдыхаем!!!'
+                elif datetime.today().day == 14:
+                    day = f'14 - июня\n'
+                    send_mess = f'{everyday_start} ИИС "Тоймаган Тимур" (письменно) 10-00 587 (kaf) Azimov A.'
 
-            bot.send_message(users[i - 1][0], f'{today} {day}\n{send_mess}', parse_mode='html')
+                elif datetime.today().day == 15:
+                    day = f'15 - июня\n'
+                    send_mess = f'{everyday_start} ЧС "кейинги дарс дафтарилани текшираман" (письменно) 10-00 457 ' \
+                                f'(kaf) Nurmatov X.M'
+
+                elif datetime.today().day == 16:
+                    day = f'16 - июня\n'
+                    send_mess = f'{everyday_start} Автоматика телемаханика "Как моя фамилия?" (письменно) 08-00 255 ' \
+                                f'V.M.Zakirov'
+
+            bot.send_message(user[0], f'{today} {day}\n{send_mess}', parse_mode='html')
     except Exception as e:
         print(e)
 
